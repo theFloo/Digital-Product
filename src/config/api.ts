@@ -1,0 +1,1 @@
+export const API_BASE = 'https://digital-product-backend.vercel.app' ;

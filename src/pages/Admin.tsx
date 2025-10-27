@@ -1,0 +1,630 @@
+import { useState, useEffect } from 'react';
+import { API_BASE } from '@/config/api';
+import AdminLogin from '@/components/AdminLogin';
+import { toast } from 'react-toastify';
+import { useAuthStore } from '@/store/useAuthStore';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Trash2, Edit, Plus, LogOut, ShoppingCart } from 'lucide-react';
+
+const Admin = () => {
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [newProduct, setNewProduct] = useState({
+    id: '',
+    name: '',
+    price: '',
+    description: '',
+    detailDescription: '',
+    image: '',
+    category: '',
+    popular: false,
+    rating: 4.5,
+    features: [],
+    url: ''
+  });
+  const [currentFeature, setCurrentFeature] = useState('');
+  const { isAuthenticated, credentials, logout } = useAuthStore();
+
+  const addFeature = () => {
+    if (editingProduct) {
+      // For editing mode
+      if (currentFeature.trim() && !editingProduct.features.includes(currentFeature.trim())) {
+        setEditingProduct({
+          ...editingProduct,
+          features: [...(editingProduct.features || []), currentFeature.trim()]
+        });
+        setCurrentFeature('');
+      }
+    } else {
+      // For adding new product mode
+      if (currentFeature.trim() && !newProduct.features.includes(currentFeature.trim())) {
+        setNewProduct({
+          ...newProduct,
+          features: [...newProduct.features, currentFeature.trim()]
+        });
+        setCurrentFeature('');
+      }
+    }
+  };
+
+  const removeFeature = (index) => {
+    if (editingProduct) {
+      // For editing mode
+      setEditingProduct({
+        ...editingProduct,
+        features: (editingProduct.features || []).filter((_, i) => i !== index)
+      });
+    } else {
+      // For adding new product mode
+      setNewProduct({
+        ...newProduct,
+        features: newProduct.features.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  // Category options
+  const categoryOptions = [
+    "Pan India Database",
+    "Website and Theme Pluggins", 
+    "Youtube & Instagram Content Bundle",
+    "T-Shirt Printing design Bundle",
+    "ChatGPT Prompts",
+    "E books",
+    "Courses",
+    "Kids WorkSsheet", 
+    "Adobe Premium",
+    "Digital Assest"
+  ];
+
+  // Auto scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && credentials) {
+      fetchProducts();
+    }
+  }, [isAuthenticated, credentials]);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/products/public`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data);
+      } else {
+        toast.error('Failed to fetch products');
+      }
+    } catch (error) {
+      console.error('Fetch products error:', error);
+      toast.error('Failed to fetch products');
+    }
+  };
+
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    if (!credentials) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'username': credentials.username,
+          'password': credentials.password
+        },
+        body: JSON.stringify({
+          ...newProduct,
+          price: parseFloat(newProduct.price)
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Product added successfully');
+        setNewProduct({ 
+          id: '', 
+          name: '', 
+          price: '', 
+          description: '', 
+          detailDescription: '',
+          image: '', 
+          category: '',
+          popular: false,
+          rating: 4.5,
+          features: [],
+          url: ''
+        });
+        setShowAddForm(false);
+        fetchProducts();
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to add product');
+      }
+    } catch (error) {
+      console.error('Add product error:', error);
+      toast.error('Error adding product');
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProduct({
+      ...product,
+      price: product.price.toString(),
+      features: product.features || []
+    });
+    setCurrentFeature(''); // Clear any existing feature input
+  };
+
+  const handleUpdateProduct = async (e) => {
+    e.preventDefault();
+    if (!credentials || !editingProduct) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'username': credentials.username,
+          'password': credentials.password
+        },
+        body: JSON.stringify({
+          ...editingProduct,
+          price: parseFloat(editingProduct.price)
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Product updated successfully');
+        setEditingProduct(null);
+        fetchProducts();
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to update product');
+      }
+    } catch (error) {
+      console.error('Update product error:', error);
+      toast.error('Error updating product');
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    if (!credentials || !confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'username': credentials.username,
+          'password': credentials.password
+        }
+      });
+
+      if (response.ok) {
+        toast.success('Product deleted successfully');
+        fetchProducts();
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to delete product');
+      }
+    } catch (error) {
+      console.error('Delete product error:', error);
+      toast.error('Error deleting product');
+    }
+  };
+
+  const handleLogin = () => {
+    console.log('Login successful, fetching products...');
+  };
+
+  const handleLogout = () => {
+    logout();
+    setProducts([]);
+    toast.success('Logged out successfully');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AdminLogin onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <Button onClick={handleLogout} variant="outline">
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
+
+        {/* Add Product Button */}
+        <div className="mb-6">
+          <Button onClick={() => setShowAddForm(!showAddForm)}>
+            <Plus className="h-4 w-4 mr-2" />
+            {showAddForm ? 'Cancel' : 'Add New Product'}
+          </Button>
+        </div>
+
+        {/* Add Product Form */}
+        {showAddForm && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Add New Product</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddProduct} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Product ID</label>
+                    <Input
+                      value={newProduct.id}
+                      onChange={(e) => setNewProduct({...newProduct, id: e.target.value})}
+                      placeholder="unique-product-id"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <Input
+                      value={newProduct.name}
+                      onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                      placeholder="Product Name"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Price (₹)</label>
+                      <Input
+                        type="number"
+                        value={newProduct.price}
+                        onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Rating (0-5)</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="5"
+                        step="0.1"
+                        value={newProduct.rating}
+                        onChange={(e) => setNewProduct({...newProduct, rating: parseFloat(e.target.value) || 4.5})}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Category</label>
+                    <select
+                      value={newProduct.category}
+                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                      className="w-full p-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      required
+                    >
+                      <option value="">Select Category</option>
+                      {categoryOptions.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <textarea
+                    className="w-full p-2 border rounded-md"
+                    rows={3}
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                    placeholder="Product description..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Image URL</label>
+                  <Input
+                    value={newProduct.image}
+                    onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Features</label>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        value={currentFeature}
+                        onChange={(e) => setCurrentFeature(e.target.value)}
+                        placeholder="Add a feature..."
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                      />
+                      <Button type="button" onClick={addFeature} variant="outline">
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {newProduct.features.length > 0 && (
+                      <div className="space-y-1">
+                        {newProduct.features.map((feature, index) => (
+                          <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                            <span className="text-sm">{feature}</span>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeFeature(index)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit">Add Product</Button>
+                  <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Edit Product Modal */}
+        {editingProduct && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+              <CardHeader>
+                <CardTitle>Edit Product</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateProduct} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Product ID</label>
+                      <Input
+                        value={editingProduct.id}
+                        onChange={(e) => setEditingProduct({...editingProduct, id: e.target.value})}
+                        placeholder="unique-product-id"
+                        disabled
+                        className="bg-gray-100"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Product ID cannot be changed</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Name</label>
+                      <Input
+                        value={editingProduct.name}
+                        onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
+                        placeholder="Product Name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Price</label>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        step="0.01"
+                        value={editingProduct.price}
+                        onChange={(e) => setEditingProduct({...editingProduct, price: e.target.value})}
+                        placeholder="29.99"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Rating (0-5)</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="5"
+                        step="0.1"
+                        value={editingProduct.rating || 4.5}
+                        onChange={(e) => setEditingProduct({...editingProduct, rating: parseFloat(e.target.value) || 4.5})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Category</label>
+                      <select
+                        value={editingProduct.category || ''}
+                        onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})}
+                        className="w-full p-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        required
+                      >
+                        <option value="">Select Category</option>
+                        {categoryOptions.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="edit-popular"
+                        checked={editingProduct.popular || false}
+                        onChange={(e) => setEditingProduct({...editingProduct, popular: e.target.checked})}
+                        className="rounded"
+                      />
+                      <label htmlFor="edit-popular" className="text-sm font-medium">Mark as Popular (Show on Index)</label>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Description</label>
+                    <textarea
+                      className="w-full p-2 border rounded-md"
+                      rows={3}
+                      value={editingProduct.description || ''}
+                      onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
+                      placeholder="Product description..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Image URL</label>
+                    <Input
+                      value={editingProduct.image || ''}
+                      onChange={(e) => setEditingProduct({...editingProduct, image: e.target.value})}
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Features</label>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          value={currentFeature}
+                          onChange={(e) => setCurrentFeature(e.target.value)}
+                          placeholder="Add a feature..."
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                        />
+                        <Button type="button" onClick={addFeature} variant="outline">
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      {editingProduct.features && editingProduct.features.length > 0 && (
+                        <div className="space-y-1">
+                          {editingProduct.features.map((feature, index) => (
+                            <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                              <span className="text-sm">{feature}</span>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => removeFeature(index)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button type="button" variant="outline" onClick={() => setEditingProduct(null)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">Update Product</Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Products List */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Products ({products.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {products.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                No products found. Add your first product above.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {products.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-4 flex-1">
+                      {/* Product Image */}
+                      <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {product.image ? (
+                          <img 
+                            src={product.image} 
+                            alt={product.name} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                            <ShoppingCart className="h-6 w-6 text-primary/40" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Product Details */}
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{product.name}</h3>
+                        <p className="text-sm text-muted-foreground">{product.description}</p>
+                        <p className="text-sm font-medium">₹{product.price}</p>
+                        <p className="text-sm text-muted-foreground">ID: {product.id}</p>
+                        {product.category && (
+                          <p className="text-xs text-blue-600">Category: {product.category}</p>
+                        )}
+                        {product.features && product.features.length > 0 && (
+                          <p className="text-xs text-green-600">Features: {product.features.length} items</p>
+                        )}
+                        {product.popular && (
+                          <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mt-1">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditProduct(product)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        onClick={() => handleDeleteProduct(product.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Admin;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
