@@ -10,7 +10,6 @@ import Cart from "./pages/Cart";
 import Shipping from "./pages/Shipping";
 import NotFound from "./pages/NotFound";
 import ProductDetail from "./pages/ProductDetail";
-import RefundPolicy from "./pages/RefundPolicy";
 import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Navbar from "./components/Navbar";

@@ -12,10 +12,7 @@ interface AdminLoginProps {
 }
 
 const AdminLogin = ({ onLogin }: AdminLoginProps) => {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
-  });
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { login } = useAuthStore();
 
@@ -26,23 +23,21 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
     try {
       const response = await fetch(`${API_BASE}/api/admin/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       });
 
       const data = await response.json();
-
+console.log(data)
       if (response.ok) {
-        login(credentials.username, credentials.password);
+        login(data.user.username, data.user.password);
         toast.success('Login successful!');
-        onLogin(); // This should trigger the parent component to re-render
+        onLogin();
       } else {
-        toast.error(data.message || 'Login failed');
+        toast.error(data.message || 'Invalid credentials');
       }
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (err) {
+      console.error('Login error:', err);
       toast.error('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -71,7 +66,7 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Password</label>
               <div className="relative">
@@ -86,7 +81,7 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
                 />
               </div>
             </div>
-            
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </Button>
@@ -98,8 +93,3 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
 };
 
 export default AdminLogin;
-
-
-
-
-

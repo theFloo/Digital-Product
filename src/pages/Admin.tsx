@@ -94,7 +94,7 @@ const Admin = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/products/public`);
+      const response = await fetch(`${API_BASE}/api/products`);
       
       if (response.ok) {
         const data = await response.json();
