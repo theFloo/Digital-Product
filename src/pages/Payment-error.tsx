@@ -1,8 +1,8 @@
 "use client";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from 'react-router-dom';
 
 export default function PaymentErrorPage() {
-  const searchParams = useSearchParams();
+   const [searchParams] = useSearchParams();
   const transactionId = searchParams.get("transactionId");
   const error = searchParams.get("error");
 
