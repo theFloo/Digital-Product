@@ -25,6 +25,7 @@ import OrderTracking from "./pages/OrderTracking";
 import AdminDashboard from "./pages/AdminDashboard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
+import PaymentError from "./pages/Payment-error";
 import TrustBadges from "./components/TrustBadges";
 import PaymentPendingPage from './pages/PaymentPendingPage';
 
@@ -68,7 +69,7 @@ const App = () => (
             <Route path="/payment-pending" element={<PaymentPendingPage />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-failed" element={<PaymentFailed />} />
-            <Route path="/payment-error" element={<PaymentFailed />} />
+            <Route path="/payment-error" element={<PaymentError />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <TrustBadges />
