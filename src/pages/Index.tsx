@@ -43,6 +43,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { API_BASE } from "@/config/api";
 import useEmblaCarousel from "embla-carousel-react"; // Added for carousel
+import ProductCard from "@/components/ProductCard";
 
 // --- TYPE DEFINITION ---
 interface ProductType {
@@ -191,8 +192,14 @@ const Index = () => {
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
 
-  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+  const scrollPrev = useCallback(
+    () => emblaApi && emblaApi.scrollPrev(),
+    [emblaApi]
+  );
+  const scrollNext = useCallback(
+    () => emblaApi && emblaApi.scrollNext(),
+    [emblaApi]
+  );
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -300,219 +307,123 @@ const Index = () => {
       {/* 🏠 Hero Section (Unchanged) */}
       {/* Hero Section */}
 
-<section className="section-padding bg-gradient-to-br from-primary/5 to-secondary/5">
-
-<div className="container mx-auto">
-
-<div className="flex flex-col md:flex-row gap-10 items-center">
-
-<div className="flex-1 space-y-6">
-
-<div className="inline-block px-4 py-1.5 rounded-full border border-primary/50 bg-primary/10">
-
-<p className="text-sm font-medium text-primary">
-
-Limited Time Offer
-
-</p>
-
-</div>
-
-
-
-<h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
-
-Boost Your Business with{" "}
-
-<span className="gradient-text">The Floo Hub</span> Unbeatable
-
-Prices!
-
-</h1>
-
-
-
-<p className="text-lg text-muted-foreground max-w-xl">
-
-Create and sell unlimited digital products with our massive
-
-product of premium assets.
-
-</p>
-
-
-
-<div className="flex flex-wrap gap-6 pt-2">
-
-{featuresData.map((feature, index) => (
-
-<div key={index} className="flex items-center gap-2">
-
-<feature.icon className="h-5 w-5 text-primary" />
-
-<span>{feature.text}</span>
-
-</div>
-
-))}
-
-</div>
-
-
-
-<div className="pt-4">
-
-<CountdownTimer
-
-initialHours={23}
-
-initialMinutes={59}
-
-initialSeconds={59}
-
-/>
-
-</div>
-
-
-
-<div className="flex flex-col sm:flex-row gap-4 pt-2">
-
-<Button
-
-size="lg"
-
-className="text-lg btn-gradient"
-
-disabled={isAdding}
-
-onClick={handleAddToCart}
-
->
-
-{isAdding ? "Adding..." : "Add to Cart"}
-
-{!isAdding && <ArrowRight className="ml-2 h-5 w-5" />}
-
-</Button>
-
-
-
-<div className="flex flex-col justify-center">
-
-<div className="flex items-center gap-2">
-
-<span className="text-3xl font-bold">₹ {BUNDLE_PRICE}</span>
-
-<span className="text-xl text-muted-foreground line-through">
-
-₹{(BUNDLE_PRICE * 3).toFixed(2)}
-
-</span>
-
-</div>
-
-<span className="text-green-600 text-sm">
-
-Save 80% Today!
-
-</span>
-
-</div>
-
-</div>
-
-
-
-<div className="flex items-center gap-4 pt-4">
-
-<div className="flex gap-2">
-
-<img
-
-src="https://cdn-icons-png.flaticon.com/512/196/196566.png"
-
-alt="Visa"
-
-className="h-8"
-
-/>
-
-<img
-
-src="https://cdn-icons-png.flaticon.com/512/196/196578.png"
-
-alt="UPI"
-
-className="h-8"
-
-/>
-
-<img
-
-src="https://cdn-icons-png.flaticon.com/512/825/825454.png"
-
-alt="Razorpay"
-
-className="h-8"
-
-/>
-
-</div>
-
-<span className="text-sm text-muted-foreground">
-
-Secure Payment
-
-</span>
-
-</div>
-
-</div>
-
-
-
-<div className="flex-1">
-
-<div className="relative">
-
-<div className="absolute inset-0 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-xl"></div>
-
-<div className="glass-card rounded-xl overflow-hidden relative z-10 card-hover">
-
-<img
-
-src={img6}
-
-alt="Product Preview"
-
-className="w-full h-auto rounded-xl"
-
-/>
-
-<div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
-
-<div className="absolute bottom-0 left-0 right-0 p-6">
-
-<h3 className="text-xl font-bold"></h3>
-
-<p className="text-muted-foreground"></p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-
+      <section className="section-padding bg-gradient-to-br from-primary/5 to-secondary/5">
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row gap-10 items-center">
+            <div className="flex-1 space-y-6">
+              <div className="inline-block px-4 py-1.5 rounded-full border border-primary/50 bg-primary/10">
+                <p className="text-sm font-medium text-primary">
+                  Limited Time Offer
+                </p>
+              </div>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
+                Boost Your Business with{" "}
+                <span className="gradient-text">The Floo Hub</span> Unbeatable
+                Prices!
+              </h1>
+
+              <p className="text-lg text-muted-foreground max-w-xl">
+                Create and sell unlimited digital products with our massive
+                product of premium assets.
+              </p>
+
+              <div className="flex flex-wrap gap-6 pt-2">
+                {featuresData.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <feature.icon className="h-5 w-5 text-primary" />
+
+                    <span>{feature.text}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-4">
+                <CountdownTimer
+                  initialHours={23}
+                  initialMinutes={59}
+                  initialSeconds={59}
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                <Button
+                  size="lg"
+                  className="text-lg btn-gradient"
+                  disabled={isAdding}
+                  onClick={handleAddToCart}
+                >
+                  {isAdding ? "Adding..." : "Add to Cart"}
+
+                  {!isAdding && <ArrowRight className="ml-2 h-5 w-5" />}
+                </Button>
+
+                <div className="flex flex-col justify-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl font-bold">₹ {BUNDLE_PRICE}</span>
+
+                    <span className="text-xl text-muted-foreground line-through">
+                      ₹{(BUNDLE_PRICE * 3).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <span className="text-green-600 text-sm">
+                    Save 80% Today!
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 pt-4">
+                <div className="flex gap-2">
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/196/196566.png"
+                    alt="Visa"
+                    className="h-8"
+                  />
+
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/196/196578.png"
+                    alt="UPI"
+                    className="h-8"
+                  />
+
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/825/825454.png"
+                    alt="Razorpay"
+                    className="h-8"
+                  />
+                </div>
+
+                <span className="text-sm text-muted-foreground">
+                  Secure Payment
+                </span>
+              </div>
+            </div>
+
+            <div className="flex-1">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-xl"></div>
+
+                <div className="glass-card rounded-xl overflow-hidden relative z-10 card-hover">
+                  <img
+                    src={img6}
+                    alt="Product Preview"
+                    className="w-full h-auto rounded-xl"
+                  />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 className="text-xl font-bold"></h3>
+
+                    <p className="text-muted-foreground"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* 🧠 Why Choose Us Section (Unchanged) */}
       <section className="py-16 bg-white">
@@ -576,7 +487,7 @@ className="w-full h-auto rounded-xl"
                   .filter((product) => product.popular)
                   .slice(0, 4)
                   .map((product) => (
-                    <NewProductCard key={product.id} product={product} />
+                    <ProductCard key={product.id} product={product} />
                   ))}
           </div>
         </div>
@@ -740,7 +651,10 @@ className="w-full h-auto rounded-xl"
                 className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  toast({ title: "Subscribed!", description: "Thanks for joining us." });
+                  toast({
+                    title: "Subscribed!",
+                    description: "Thanks for joining us.",
+                  });
                 }}
               >
                 <input
