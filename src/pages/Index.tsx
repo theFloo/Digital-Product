@@ -58,6 +58,7 @@ interface ProductType {
   features?: string[];
   category: string;
   url?: string;
+  file_name?: string;
 }
 
 // --- CONSTANTS ---
