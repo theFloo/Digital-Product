@@ -175,58 +175,20 @@ useEffect(() => {
     return makeSafeFilename(raw);
   };
 
-  const downloadProduct = async (productId: string, fallbackName?: string) => {
-    if (downloadingId) return;
-    setDownloadingId(productId);
+async function downloadProduct(productId, transactionId) {
+  const base = API_BASE || "https://api.thefloo.in";
+  const res = await fetch(`${base}/api/signed-download/${encodeURIComponent(productId)}?transactionId=${encodeURIComponent(transactionId)}`, {
+    method: "GET",
+    credentials: "include", // if your server requires cookies
+    headers: { Accept: "application/json" },
+  });
+  const json = await res.json();
+  if (!res.ok || !json.signedUrl) throw new Error(json.message || "No signed url");
 
-    try {
+  // open in new tab or redirect; using location.href will open in same tab
+    window.open(json.signedUrl, "_blank");
+}
 
-
-      const base = API_BASE || "http://localhost:3000";
-      if (!transactionId) {
-        alert("Missing transactionId - cannot verify purchase for download.");
-        setDownloadingId(null);
-        return;
-      }
-      const urls = `${base}/api/downloads/${encodeURIComponent(productId)}?transactionId=${encodeURIComponent(transactionId)}`;
-      const res = await fetch(urls, {
-        method: "GET",
-        headers: { Accept: "application/pdf, application/octet-stream" },
-      });
-
-      if (!res.ok) {
-        let serverMessage = "";
-        try {
-          const json = await res.json();
-          serverMessage = json?.message || JSON.stringify(json);
-        } catch {
-          serverMessage = await res.text().catch(() => "");
-        }
-        throw new Error(`Download failed (${res.status}) ${serverMessage}`);
-      }
-
-      const cdHeader = res.headers.get("Content-Disposition") || res.headers.get("content-disposition");
-      let filename = parseFilenameFromContentDisposition(cdHeader);
-      if (!filename) filename = getFallbackFilenameForProduct(productId, fallbackName);
-
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.setAttribute("aria-hidden", "true");
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-    } catch (err) {
-      console.error("Download error:", err);
-      const message = err instanceof Error ? err.message : "Could not download file. Please try again.";
-      alert(message);
-    } finally {
-      setDownloadingId(null);
-    }
-  };
 
   if (!orderDetails) {
     return <div className="min-h-[70vh] flex items-center justify-center">Loading order details...</div>;
@@ -296,7 +258,7 @@ useEffect(() => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => downloadProduct(item.id, fallbackFilename)}
+                    onClick={() => downloadProduct(item.id, transactionId)}
                     disabled={!!downloadingId}
                     className="flex items-center gap-2"
                     aria-label={`Download ${displayName}`}
