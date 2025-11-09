@@ -55,7 +55,6 @@ const PaymentSuccess: React.FC = () => {
         });
         if (!res.ok) throw new Error(`Failed to fetch order: ${res.status}`);
         const data = await res.json();
-        console.log("Fetched order data:", data);
         setOrderDetails(data);
       } catch (err) {
         console.error("Error fetching order:", err);
@@ -233,7 +232,6 @@ async function downloadProduct(productId, transactionId) {
             {orderDetails.items.map((item) => {
               const product = products?.find((p) => String(p.id) === String(item.id));
               const displayName = product?.name ?? item.name;
-              console.log("Rendering item:", item.id, "with product info:", product);
               const fallbackFilename = getFallbackFilenameForProduct(item.id, item.name);
 
               return (
