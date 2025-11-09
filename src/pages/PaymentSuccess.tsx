@@ -191,7 +191,6 @@ useEffect(() => {
       const urls = `${base}/api/downloads/${encodeURIComponent(productId)}?transactionId=${encodeURIComponent(transactionId)}`;
       const res = await fetch(urls, {
         method: "GET",
-        credentials: "include",
         headers: { Accept: "application/pdf, application/octet-stream" },
       });
 
