@@ -402,16 +402,16 @@ const Index = () => {
 
             <div className="flex-1">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-xl"></div>
+                <div className="absolute inset-0  from-primary/20 to-transparent rounded-full"></div>
 
                 <div className="glass-card rounded-xl overflow-hidden relative z-10 card-hover">
                   <img
-                    src={img6}
+                    src="https://candentseo.com/wp-content/uploads/All-in-one-Bundle-package.jpg"
                     alt="Product Preview"
                     className="w-full h-auto rounded-xl"
                   />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+                  <div className="absolute inset-0  from-background/80 to-transparent"></div>
 
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <h3 className="text-xl font-bold"></h3>

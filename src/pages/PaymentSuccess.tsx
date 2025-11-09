@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, Download, ArrowLeft } from 'lucide-react';
-import { useCartStore } from '@/store/useCartStore';
-import { API_BASE } from '@/config/api';
+import { useEffect, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, Download, ArrowLeft } from "lucide-react";
+import { useCartStore } from "@/store/useCartStore";
+import { API_BASE } from "@/config/api";
+
 interface OrderItem {
-  productId: string;
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -19,12 +20,26 @@ interface OrderDetails {
   items: OrderItem[];
 }
 
-const PaymentSuccess = () => {
+interface Product {
+  id: string;
+  name: string;
+  price?: number;
+  image?: string;
+  file_name?: string | null;
+  local_file_name?: string | null;
+  // other columns...
+}
+
+const PaymentSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [products, setProducts] = useState<Product[] | null>(null);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [productsError, setProductsError] = useState<string | null>(null);
   const { clearCart } = useCartStore();
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const transactionId = searchParams.get('transactionId');
+  const transactionId = searchParams.get("transactionId");
 
   useEffect(() => {
     clearCart();
@@ -33,21 +48,134 @@ const PaymentSuccess = () => {
 
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`${API_BASE || 'http://localhost:3000'}/api/orders/${transactionId}`);
+        const base = API_BASE || "http://localhost:3000";
+        const res = await fetch(`${base}/api/orders/${encodeURIComponent(transactionId)}`, {
+          method: "GET",
+          credentials: "include",
+        });
         if (!res.ok) throw new Error(`Failed to fetch order: ${res.status}`);
         const data = await res.json();
+        console.log("Fetched order data:", data);
         setOrderDetails(data);
       } catch (err) {
-        console.error('Error fetching order:', err);
+        console.error("Error fetching order:", err);
       }
     };
 
     fetchOrder();
   }, [transactionId, clearCart]);
 
-  const handleDownload = (productId: string, productName: string) => {
-    // You can also fetch secure download links from the backend
-    alert(`Download link for ${productName} will be sent to your email shortly.`);
+  // fetch products list
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoadingProducts(true);
+      setProductsError(null);
+      try {
+        const base = API_BASE || "http://localhost:3000";
+        const res = await fetch(`${base}/api/products`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (!res.ok) {
+          throw new Error(`Failed to fetch products: ${res.status}`);
+        }
+        const data: Product[] = await res.json();
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setProductsError(err instanceof Error ? err.message : "Failed to fetch products");
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // helpers
+  const parseFilenameFromContentDisposition = (headerValue: string | null) => {
+    if (!headerValue) return null;
+    const rxStar = /filename\*\s*=\s*(?:UTF-8'')?([^;]+)/i;
+    const mStar = rxStar.exec(headerValue);
+    if (mStar && mStar[1]) {
+      try {
+        const raw = mStar[1].trim().replace(/^["']|["']$/g, "");
+        return decodeURIComponent(raw);
+      } catch (e) { }
+    }
+    const rx = /filename\s*=\s*["']?([^"';]+)["']?/i;
+    const m = rx.exec(headerValue);
+    if (m && m[1]) return m[1].trim();
+    return null;
+  };
+
+  const makeSafeFilename = (name: string) => {
+    if (!name) return "download.pdf";
+    const safe = name.replace(/[^a-z0-9_\-\. ]/gi, "_").trim();
+    return safe.toLowerCase().endsWith(".pdf") ? safe : `${safe}.pdf`;
+  };
+
+  // Given productId, pick best fallback filename available from products response
+  const getFallbackFilenameForProduct = (productId: string, fallbackName?: string) => {
+    const product = products?.find((p) => String(p.id) === String(productId));
+    if (!product) return makeSafeFilename(fallbackName || `product_${productId}`);
+    // prefer file_name or local_file_name if present
+    const raw = product.file_name || product.local_file_name || product.name || fallbackName || `product_${productId}`;
+    return makeSafeFilename(raw);
+  };
+
+  const downloadProduct = async (productId: string, fallbackName?: string) => {
+    if (downloadingId) return;
+    setDownloadingId(productId);
+
+    try {
+
+
+      const base = API_BASE || "http://localhost:3000";
+      if (!transactionId) {
+        alert("Missing transactionId - cannot verify purchase for download.");
+        setDownloadingId(null);
+        return;
+      }
+      const urls = `${base}/api/downloads/${encodeURIComponent(productId)}?transactionId=${encodeURIComponent(transactionId)}`;
+      const res = await fetch(urls, {
+        method: "GET",
+        credentials: "include",
+        headers: { Accept: "application/pdf, application/octet-stream" },
+      });
+
+      if (!res.ok) {
+        let serverMessage = "";
+        try {
+          const json = await res.json();
+          serverMessage = json?.message || JSON.stringify(json);
+        } catch {
+          serverMessage = await res.text().catch(() => "");
+        }
+        throw new Error(`Download failed (${res.status}) ${serverMessage}`);
+      }
+
+      const cdHeader = res.headers.get("Content-Disposition") || res.headers.get("content-disposition");
+      let filename = parseFilenameFromContentDisposition(cdHeader);
+      if (!filename) filename = getFallbackFilenameForProduct(productId, fallbackName);
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.setAttribute("aria-hidden", "true");
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      console.error("Download error:", err);
+      const message = err instanceof Error ? err.message : "Could not download file. Please try again.";
+      alert(message);
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   if (!orderDetails) {
@@ -56,7 +184,7 @@ const PaymentSuccess = () => {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
-      <div className="text-center max-w-2xl">
+      <div className="text-center max-w-3xl">
         <div className="h-20 w-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-8">
           <CheckCircle className="h-12 w-12 text-green-600" />
         </div>
@@ -69,33 +197,66 @@ const PaymentSuccess = () => {
         <div className="bg-white rounded-lg shadow-md p-6 mb-8 text-left">
           <h2 className="text-xl font-semibold mb-4">Order Details</h2>
           <div className="space-y-2 mb-4">
-            <p><strong>Order ID:</strong> {orderDetails.id}</p>
-            <p><strong>Customer:</strong> {orderDetails.customer_name}</p>
-            <p><strong>Email:</strong> {orderDetails.customer_email}</p>
-            <p><strong>Total Amount:</strong> ₹{orderDetails.total_amount.toFixed(2)}</p>
+            <p>
+              <strong>Order ID:</strong> {orderDetails.id}
+            </p>
+            <p>
+              <strong>Customer:</strong> {orderDetails.customer_name}
+            </p>
+            <p>
+              <strong>Email:</strong> {orderDetails.customer_email}
+            </p>
+            <p>
+              <strong>Total Amount:</strong> ₹{orderDetails.total_amount.toFixed(2)}
+            </p>
           </div>
 
           <h3 className="font-medium mb-3">Items Purchased:</h3>
+
+          {/* Show product fetch status */}
+          {loadingProducts && <p className="mb-3 text-sm text-muted-foreground">Loading product info...</p>}
+          {productsError && <p className="mb-3 text-sm text-red-500">Could not load products: {productsError}</p>}
+
           <div className="space-y-3">
-            {orderDetails.items.map(item => (
-              <div key={item.productId} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                <div>
-                  <span className="font-medium">{item.name}</span>
-                  <p className="text-sm text-muted-foreground">
-                    Quantity: {item.quantity} × ₹{item.price.toFixed(2)}
-                  </p>
+            {orderDetails.items.map((item) => {
+              const product = products?.find((p) => String(p.id) === String(item.id));
+              const displayName = product?.name ?? item.name;
+              console.log("Rendering item:", item.id, "with product info:", product);
+              const fallbackFilename = getFallbackFilenameForProduct(item.id, item.name);
+
+              return (
+                <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  <div className="flex items-center gap-3">
+                    {product?.image ? (
+                      <img src={product.image} alt={displayName} className="w-12 h-12 object-cover rounded" />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-sm">PDF</div>
+                    )}
+                    <div>
+                      <div className="font-medium">{displayName}</div>
+                      <p className="text-sm text-muted-foreground">
+                        Quantity: {item.quantity} × ₹{item.price.toFixed(2)}
+                      </p>
+                      {product && (
+                        <p className="text-xs text-muted-foreground">Product ID: {product.id}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => downloadProduct(item.id, fallbackFilename)}
+                    disabled={!!downloadingId}
+                    className="flex items-center gap-2"
+                    aria-label={`Download ${displayName}`}
+                  >
+                    <Download className="h-4 w-4" />
+                    {downloadingId === item.id ? "Downloading..." : "Download"}
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleDownload(item.productId, item.name)}
-                  className="flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Download
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
