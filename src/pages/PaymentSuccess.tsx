@@ -66,31 +66,82 @@ const PaymentSuccess: React.FC = () => {
   }, [transactionId, clearCart]);
 
   // fetch products list
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoadingProducts(true);
-      setProductsError(null);
-      try {
-        const base = API_BASE || "http://localhost:3000";
-        const res = await fetch(`${base}/api/products`, {
-          method: "GET",
-          credentials: "include",
-        });
-        if (!res.ok) {
-          throw new Error(`Failed to fetch products: ${res.status}`);
-        }
-        const data: Product[] = await res.json();
-        setProducts(data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        setProductsError(err instanceof Error ? err.message : "Failed to fetch products");
-      } finally {
-        setLoadingProducts(false);
-      }
-    };
+useEffect(() => {
+  // only run when we have order details
+  if (!orderDetails) return;
 
-    fetchProducts();
-  }, []);
+  const fetchProductsForOrder = async () => {
+    setLoadingProducts(true);
+    setProductsError(null);
+
+    try {
+      const base = API_BASE || "http://localhost:3000";
+
+      // collect unique product ids from the order items
+      const ids = Array.from(
+        new Set(orderDetails.items.map((it) => String(it.id).trim()).filter(Boolean))
+      );
+
+      if (ids.length === 0) {
+        setProducts([]);
+        return;
+      }
+
+      // fetch all product endpoints in parallel
+      const fetches = ids.map((id) =>
+        fetch(`${base}/api/products/${encodeURIComponent(id)}`, {
+          method: "GET",
+          // include credentials only if your server requires cookies/session
+        }).then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text().catch(() => "");
+            throw new Error(`Product ${id} fetch failed: ${res.status} ${text}`);
+          }
+          return (await res.json()) as Product;
+        })
+      );
+
+      // use Promise.allSettled to tolerate some missing products
+      const results = await Promise.allSettled(fetches);
+
+      const successful: Product[] = [];
+      const errors: string[] = [];
+
+      results.forEach((r, idx) => {
+        if (r.status === "fulfilled") {
+          successful.push(r.value);
+        } else {
+          errors.push(`id=${ids[idx]}: ${r.reason?.message || String(r.reason)}`);
+        }
+      });
+
+      if (successful.length === 0 && errors.length) {
+        // nothing fetched successfully
+        throw new Error(`Failed to fetch any products. Errors: ${errors.join("; ")}`);
+      }
+
+      // optional: keep the order of products same as order items
+      const productsOrdered = ids
+        .map((id) => successful.find((p) => String(p.id) === id))
+        .filter(Boolean) as Product[];
+
+      setProducts(productsOrdered);
+      if (errors.length) {
+        // log and show a non-fatal warning
+        console.warn("Some product fetches failed:", errors);
+        setProductsError("Some products could not be loaded. Check console for details.");
+      }
+    } catch (err) {
+      console.error("Error fetching products for order:", err);
+      setProductsError(err instanceof Error ? err.message : "Failed to fetch products");
+      setProducts([]); // fallback empty
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  fetchProductsForOrder();
+}, [orderDetails]);
 
   // helpers
   const parseFilenameFromContentDisposition = (headerValue: string | null) => {
