@@ -35,7 +35,7 @@ const Navbar = () => {
             <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
               <span className="text-white font-bold"><img src={logo} className="w-full h-full object-cover rounded-full" /></span>
             </div>
-            <span className="text-lg font-semibold">The Floo Hub Products</span>
+            <span className="text-lg font-semibold">The Floo Creative Marketing Agency </span>
           </Link>
           
           <div className="flex items-center gap-3">

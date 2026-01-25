@@ -214,7 +214,7 @@ const IndexDummy: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="text-4xl md:text-5xl lg:text-6xl font-bold mt-5 leading-tight"
           >
-            Discover Quality Digital Books at The Floo Store
+            Discover Quality Digital Books at The Floo Creative Marketing Agency
           </motion.h1>
 
           <motion.p
