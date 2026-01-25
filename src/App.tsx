@@ -28,6 +28,7 @@ import PaymentFailed from "./pages/PaymentFailed";
 import PaymentError from "./pages/Payment-error";
 import TrustBadges from "./components/TrustBadges";
 import PaymentPendingPage from './pages/PaymentPendingPage';
+import IndexDummy from './pages/IndexDummy';
 
 const queryClient = new QueryClient();
 
@@ -53,7 +54,7 @@ const App = () => (
           />
           <Navbar />
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<IndexDummy />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/contact" element={<Contact />} />

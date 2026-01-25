@@ -85,13 +85,13 @@ const Navbar = () => {
               >
                 Home
               </Link>
-              <Link 
+              {/* <Link 
                 to="/products" 
                 className="hover:text-primary transition-colors text-base py-2"
                 onClick={closeMobileMenu}
               >
                 Products
-              </Link>
+              </Link> */}
             </div>
           </div>
         )}
@@ -121,7 +121,7 @@ const Navbar = () => {
           
           <div className="flex items-center gap-6 flex-shrink-0">
             <Link to="/" className="hover:text-primary transition-colors">Home</Link>
-            <Link to="/products" className="hover:text-primary transition-colors">Products</Link>
+            {/* <Link to="/products" className="hover:text-primary transition-colors">Products</Link> */}
             <Link to="/cart" className="relative">
               <ShoppingCart className="h-6 w-6" />
               {totalItems > 0 && (
