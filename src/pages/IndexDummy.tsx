@@ -361,14 +361,14 @@ const IndexDummy: React.FC = () => {
               ))}
         </div>
 
-        <div className="text-center mt-16">
+        {/* <div className="text-center mt-16">
           <Link
-            to="/books"
+            to="/products"
             className="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
           >
             Shop All Books <ArrowRight size={18} />
           </Link>
-        </div>
+        </div> */}
       </section>
 
       {/* Reviews */}
