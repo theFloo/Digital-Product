@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Filter, Grid, List } from 'lucide-react';
-import { motion } from 'framer-motion';
-import ProductCard from '@/components/ProductCard';
-import { API_BASE } from '@/config/api';
-import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, Grid, List } from "lucide-react";
+import { motion } from "framer-motion";
+import ProductCard from "@/components/ProductCard";
 import {
   Pagination,
   PaginationContent,
@@ -21,89 +19,94 @@ interface ProductType {
   id: string;
   name: string;
   description: string;
-  detailDescription?: string;
   price: number;
-  popular?: boolean;
-  image: string;
   rating?: number;
-  features?: string[];
+  image: string;
   category: string;
-  url?: string;
 }
 
-const categories = [
-  "All", 
-  // "Pan India Database",
-  // "Website and Theme Pluggins", 
-  // "Youtube & Instagram Content ",
-  // "T-Shirt Printing design ",
-  // "ChatGPT Prompts",
-  "E books",
-  // "Courses",
-  // "Kids WorkSsheet", 
-  // "Adobe Premium",
-  // "Digital Assest"
+const PRODUCTS_PER_PAGE = 9;
+
+const categories = ["All", "Books"];
+
+const dummyProducts: ProductType[] = [
+  {
+    id: "1",
+    name: "It Ends with Us",
+    description: "An emotional romance novel by Colleen Hoover.",
+    price: 499,
+    rating: 4.5,
+    image:
+      "https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781398520783/it-ends-with-us-9781398520783_hr.jpg",
+    category: "Books",
+  },
+  {
+    id: "2",
+    name: "Sapiens",
+    description: "A brief history of humankind by Yuval Noah Harari.",
+    price: 399,
+    rating: 4.7,
+    image:
+      "https://d30a6s96kk7rhm.cloudfront.net/original/readings/978/009/959/9780099590088.jpg",
+    category: "Books",
+  },
+  {
+    id: "3",
+    name: "The Fault in Our Stars",
+    description: "A touching love story by John Green.",
+    price: 549,
+    rating: 4.6,
+    image:
+      "https://laurellane.co.uk/wp-content/uploads/2022/07/IMG_0260.jpg",
+    category: "Books",
+  },
+  {
+    id: "4",
+    name: "Twisted Love",
+    description: "A dark romance filled with passion and secrets.",
+    price: 599,
+    rating: 4.8,
+    image:
+      "https://th.bing.com/th/id/OIP.m02sHFD1CdDKcuXISPNVBAHaJ4",
+    category: "Books",
+  },
 ];
-const PRODUCTS_PER_PAGE = 12;
 
 const Products = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchParams] = useSearchParams();
 
+  // ✅ Load from localStorage
   useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchProducts();
-    const searchQuery = searchParams.get('search');
-    if (searchQuery) {
-      setSearchTerm(searchQuery);
-    }
-  }, [searchParams]);
+    const storedProducts = localStorage.getItem("products");
 
-  // Reset to first page when filters change
+    if (storedProducts) {
+      setProducts(JSON.parse(storedProducts));
+    } else {
+      localStorage.setItem("products", JSON.stringify(dummyProducts));
+      setProducts(dummyProducts);
+    }
+  }, []);
+
+  // Reset page on filters
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, selectedCategory, sortBy]);
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${API_BASE}/api/products/`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data)
-        const transformedProducts = data.map(product => ({
-          ...product,
-          rating: product.rating || 4.5,
-          popular: product.popular || false,
-          features: product.features || [],
-          detailDescription: product.detailDescription || product.description,
-          url: product.url || ""
-        }));
-        setProducts(transformedProducts);
-      } else {
-        console.error('Failed to fetch products from database');
-        setProducts([]);
-      }
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const filteredProducts = products
-    .filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
+    .filter((product) => {
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesCategory =
+        selectedCategory === "All" ||
+        product.category === selectedCategory;
+
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
@@ -114,260 +117,108 @@ const Products = () => {
           return b.price - a.price;
         case "rating":
           return (b.rating || 0) - (a.rating || 0);
-        case "popular":
         default:
-          return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
+          return 0;
       }
     });
 
-  // Pagination calculations
   const totalProducts = filteredProducts.length;
   const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
   const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  const endIndex = startIndex + PRODUCTS_PER_PAGE;
-  const currentProducts = filteredProducts.slice(startIndex, endIndex);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const renderPaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 5;
-    
-    if (totalPages <= maxVisiblePages) {
-      // Show all pages if total pages is small
-      for (let i = 1; i <= totalPages; i++) {
-        items.push(
-          <PaginationItem key={i}>
-            <PaginationLink
-              href="#"
-              isActive={currentPage === i}
-              onClick={(e) => {
-                e.preventDefault();
-                handlePageChange(i);
-              }}
-            >
-              {i}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      }
-    } else {
-      // Show ellipsis for large number of pages
-      const showLeftEllipsis = currentPage > 3;
-      const showRightEllipsis = currentPage < totalPages - 2;
-
-      // First page
-      items.push(
-        <PaginationItem key={1}>
-          <PaginationLink
-            href="#"
-            isActive={currentPage === 1}
-            onClick={(e) => {
-              e.preventDefault();
-              handlePageChange(1);
-            }}
-          >
-            1
-          </PaginationLink>
-        </PaginationItem>
-      );
-
-      // Left ellipsis
-      if (showLeftEllipsis) {
-        items.push(
-          <PaginationItem key="left-ellipsis">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      // Current page and neighbors
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = start; i <= end; i++) {
-        items.push(
-          <PaginationItem key={i}>
-            <PaginationLink
-              href="#"
-              isActive={currentPage === i}
-              onClick={(e) => {
-                e.preventDefault();
-                handlePageChange(i);
-              }}
-            >
-              {i}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      }
-
-      // Right ellipsis
-      if (showRightEllipsis) {
-        items.push(
-          <PaginationItem key="right-ellipsis">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      // Last page
-      if (totalPages > 1) {
-        items.push(
-          <PaginationItem key={totalPages}>
-            <PaginationLink
-              href="#"
-              isActive={currentPage === totalPages}
-              onClick={(e) => {
-                e.preventDefault();
-                handlePageChange(totalPages);
-              }}
-            >
-              {totalPages}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      }
-    }
-
-    return items;
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-lg">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
+  const currentProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + PRODUCTS_PER_PAGE
+  );
 
   return (
     <>
       <Helmet>
-        <title>Products -  The Floo Hub</title>
-        <meta name="description" content="Browse our collection of premium digital products " />
+        <title>Products | The Floo Hub</title>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
         <div className="container mx-auto px-4">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Our Products
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover premium digital products  to boost your business
-            </p>
-          </motion.div>
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-bold mb-3">Our Products</h1>
+            <p className="text-gray-600">Browse our digital books collection</p>
+          </div>
 
-          {/* Filters and Search */}
-          <div className="mb-8 space-y-4">
-            {/* Search Bar */}
-            <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          {/* Search */}
+          <div className="max-w-md mx-auto mb-6 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search books..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-            {/* Category Filter */}
-            <div className="flex flex-wrap justify-center gap-2">
-              {categories.map((category) => (
+          {/* Filters */}
+          <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
+            <div className="flex gap-2">
+              {categories.map((cat) => (
                 <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
+                  key={cat}
                   size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className="text-sm"
+                  variant={selectedCategory === cat ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(cat)}
                 >
-                  {category}
+                  {cat}
                 </Button>
               ))}
             </div>
 
-            {/* Sort and View Options */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Sort by:</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-1 border rounded-md text-sm"
-                >
-                  <option value="popular">Popular</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Rating</option>
-                </select>
-              </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-1 border rounded-md text-sm"
+              >
+                <option value="popular">Default</option>
+                <option value="price-low">Price: Low → High</option>
+                <option value="price-high">Price: High → Low</option>
+                <option value="rating">Rating</option>
+              </select>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setViewMode("grid")}
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </div>
+              <Button
+                size="sm"
+                variant={viewMode === "grid" ? "default" : "outline"}
+                onClick={() => setViewMode("grid")}
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant={viewMode === "list" ? "default" : "outline"}
+                onClick={() => setViewMode("list")}
+              >
+                <List className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
-          {/* Products Grid */}
+          {/* Products */}
           {currentProducts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-xl text-gray-600 mb-4">No products found</p>
-              <p className="text-gray-500">Try adjusting your search or filter criteria</p>
-            </div>
+            <p className="text-center text-gray-600">No products found</p>
           ) : (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
               className={`grid gap-6 ${
                 viewMode === "grid"
-                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                   : "grid-cols-1"
               }`}
             >
-              {currentProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <ProductCard
-                    product={{...product, url: product.url || ""}}
-                  />
-                </motion.div>
+              {currentProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </motion.div>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-12">
+            <div className="mt-10">
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
@@ -375,40 +226,34 @@ const Products = () => {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        if (currentPage > 1) {
-                          handlePageChange(currentPage - 1);
-                        }
+                        setCurrentPage((p) => Math.max(1, p - 1));
                       }}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                     />
                   </PaginationItem>
-                  
-                  {renderPaginationItems()}
-                  
+
+                  <PaginationItem>
+                    <PaginationLink isActive>
+                      {currentPage}
+                    </PaginationLink>
+                  </PaginationItem>
+
+                  {currentPage < totalPages && <PaginationEllipsis />}
+
                   <PaginationItem>
                     <PaginationNext
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        if (currentPage < totalPages) {
-                          handlePageChange(currentPage + 1);
-                        }
+                        setCurrentPage((p) =>
+                          Math.min(totalPages, p + 1)
+                        );
                       }}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
                     />
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
             </div>
           )}
-
-          {/* Results Count */}
-          <div className="text-center mt-8">
-            <p className="text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, totalProducts)} of {totalProducts} products
-              {currentPage > 1 && ` (Page ${currentPage} of ${totalPages})`}
-            </p>
-          </div>
         </div>
       </div>
     </>
@@ -416,8 +261,3 @@ const Products = () => {
 };
 
 export default Products;
-
-
-
-
-

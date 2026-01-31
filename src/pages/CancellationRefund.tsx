@@ -222,20 +222,20 @@ const CancellationRefund = () => {
   return (
     <>
       <Helmet>
-        <title>Cancellation & Refund Policy | Digital Hub</title>
+        <title>Cancellation & Refund Policy | THE FLOO CREATIVE MARKETING AGENCY</title>
         <meta
           name="description"
-          content="Learn about our cancellation, return, and refund policy for physical books purchased from Digital Hub."
+          content="Learn about our cancellation and refund policy for digital products offered by THE FLOO CREATIVE MARKETING AGENCY."
         />
       </Helmet>
 
       <main className="max-w-4xl mx-auto px-4 py-10">
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            Cancellation, Return & Refund Policy
+            Cancellation & Refund Policy
           </h1>
           <p className="text-muted-foreground text-lg">
-            Important information about cancellations, returns, and refunds for physical books
+            Important information about cancellations and refunds for digital products
           </p>
         </div>
 
@@ -249,8 +249,10 @@ const CancellationRefund = () => {
                   Important Notice
                 </h2>
                 <p className="text-amber-700">
-                  We sell physical books. Returns and refunds are accepted only under specific
-                  conditions mentioned below. Please read this policy carefully before placing an order.
+                  THE FLOO CREATIVE MARKETING AGENCY sells <strong>digital products</strong>,
+                  including downloadable digital books and creative resources.
+                  No physical goods are shipped. Please read this policy carefully
+                  before making a purchase.
                 </p>
               </div>
             </div>
@@ -264,60 +266,66 @@ const CancellationRefund = () => {
             </div>
             <div className="space-y-4 text-gray-700">
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Orders can be cancelled only before they are shipped.</li>
-                <li>Once an order has been dispatched, cancellation is not possible.</li>
-                <li>Customers will be notified once the order is shipped.</li>
+                <li>Orders can be cancelled only before the digital product is accessed or downloaded.</li>
+                <li>Once access to the digital product is granted, cancellation is not possible.</li>
+                <li>Instant-delivery products may not be eligible for cancellation.</li>
               </ul>
             </div>
           </section>
 
-          {/* Return Eligibility */}
+          {/* Refund Eligibility */}
           <section className="bg-white rounded-lg border p-6">
             <div className="flex items-center gap-3 mb-4">
               <CheckCircle className="h-6 w-6 text-green-500" />
-              <h2 className="text-2xl font-semibold">Return Eligibility</h2>
+              <h2 className="text-2xl font-semibold">Refund Eligibility</h2>
             </div>
             <div className="space-y-4 text-gray-700">
-              <p>Returns are accepted within <strong>7 days of delivery</strong> only in the following cases:</p>
+              <p>
+                Refunds are considered only under the following circumstances:
+              </p>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-green-800 mb-2">Damaged or Defective Book</h3>
+                  <h3 className="font-semibold text-green-800 mb-2">
+                    Duplicate Payment
+                  </h3>
                   <p className="text-green-700 text-sm">
-                    Book received with physical damage, missing pages, or printing defects
+                    The customer was charged more than once for the same order
                   </p>
                 </div>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-800 mb-2">Wrong Book Delivered</h3>
+                  <h3 className="font-semibold text-blue-800 mb-2">
+                    Non-Delivery of Digital Product
+                  </h3>
                   <p className="text-blue-700 text-sm">
-                    Incorrect book received compared to the order placed
+                    The digital product was not delivered due to a technical issue
                   </p>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Non-Returnable Cases */}
+          {/* Non-Refundable Cases */}
           <section className="bg-white rounded-lg border p-6">
             <div className="flex items-center gap-3 mb-4">
               <XCircle className="h-6 w-6 text-red-500" />
-              <h2 className="text-2xl font-semibold">Non-Returnable Cases</h2>
+              <h2 className="text-2xl font-semibold">Non-Refundable Cases</h2>
             </div>
             <div className="space-y-3 text-gray-700">
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                <p>Change of mind or personal preference</p>
+                <p>Change of mind after purchase</p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                <p>Minor wear and tear after delivery</p>
+                <p>Product already accessed or downloaded</p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                <p>Incorrect delivery address provided by the customer</p>
+                <p>Incompatibility with user devices or software</p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                <p>Books returned without original packaging</p>
+                <p>Failure to read product description before purchase</p>
               </div>
             </div>
           </section>
@@ -329,11 +337,11 @@ const CancellationRefund = () => {
               <h2 className="text-2xl font-semibold">Refund Process</h2>
             </div>
             <div className="space-y-4 text-gray-700">
-              <p>If your return is approved:</p>
+              <p>If your refund request is approved:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Refunds will be processed within 5–7 business days after inspection</li>
-                <li>Refund will be issued to the original payment method</li>
-                <li>Replacement may be offered instead of a refund where applicable</li>
+                <li>Refunds are processed within 5–7 business days</li>
+                <li>Refunds are issued to the original payment method</li>
+                <li>Processing time may vary depending on the payment provider</li>
               </ul>
             </div>
           </section>
@@ -345,7 +353,7 @@ const CancellationRefund = () => {
               <h2 className="text-2xl font-semibold">Need Help?</h2>
             </div>
             <p className="text-gray-700 mb-3">
-              For return or refund requests, please contact us with your Order ID and photos (if applicable):
+              For cancellation or refund requests, please contact us with your Order ID:
             </p>
             <div className="bg-white rounded-lg p-4 border">
               <a
@@ -360,10 +368,10 @@ const CancellationRefund = () => {
           {/* Footer Note */}
           <div className="bg-gray-50 rounded-lg p-6 text-center">
             <p className="text-gray-600">
-              By placing an order, you agree to this Cancellation, Return & Refund Policy.
+              By making a purchase, you agree to this Cancellation & Refund Policy.
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              Last updated: {new Date().toLocaleDateString()}
+              Last updated: January 2025
             </p>
           </div>
         </div>
@@ -373,3 +381,4 @@ const CancellationRefund = () => {
 };
 
 export default CancellationRefund;
+

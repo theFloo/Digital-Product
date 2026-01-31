@@ -175,6 +175,19 @@ const PrivacyPolicy = () => {
             Last updated: January 2025
           </p>
 
+          {/* 0 */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+              Business Model and Nature of Products
+            </h2>
+            <p>
+              The Floo Creative Marketing Agency offers <strong>digital products</strong>,
+              including downloadable digital books, guides, and creative resources.
+              All products are delivered electronically, and we do not sell or ship
+              physical books or goods.
+            </p>
+          </section>
+
           {/* 1 */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">
@@ -185,10 +198,10 @@ const PrivacyPolicy = () => {
               an order, contact us, or interact with our website.
             </p>
             <ul className="list-disc list-inside ml-4 space-y-2">
-              <li>Personal information: Name, email address, phone number, shipping address</li>
+              <li>Personal information: Name, email address, phone number</li>
               <li>Payment information: Processed securely through Razorpay</li>
-              <li>Order details: Products purchased, order history</li>
-              <li>Usage data: Pages visited, interactions with our website</li>
+              <li>Order details: Digital products purchased and order history</li>
+              <li>Usage data: Pages visited and interactions with our website</li>
               <li>Device data: IP address, browser type, operating system</li>
             </ul>
           </section>
@@ -200,9 +213,9 @@ const PrivacyPolicy = () => {
             </h2>
             <p>We use your information to:</p>
             <ul className="list-disc list-inside ml-4 space-y-2">
-              <li>Process and fulfill book orders</li>
-              <li>Ship products to your provided address</li>
-              <li>Communicate order updates and delivery information</li>
+              <li>Process and fulfill digital product orders</li>
+              <li>Deliver digital products electronically</li>
+              <li>Communicate order confirmations and access details</li>
               <li>Provide customer support</li>
               <li>Improve our products, services, and website experience</li>
               <li>Prevent fraud and ensure transaction security</li>
@@ -220,9 +233,11 @@ const PrivacyPolicy = () => {
             </p>
             <ul className="list-disc list-inside ml-4 space-y-2">
               <li>With payment gateways (such as Razorpay) for secure transactions</li>
-              <li>With logistics and delivery partners for order fulfillment</li>
+              <li>
+                With technology and service providers for digital product delivery
+                and website operations
+              </li>
               <li>When required by law or government authorities</li>
-              <li>With service providers who help operate our website</li>
             </ul>
           </section>
 
@@ -261,7 +276,7 @@ const PrivacyPolicy = () => {
             </h2>
             <p>
               We retain personal information only as long as necessary to fulfill
-              orders, comply with legal obligations, and resolve disputes.
+              digital orders, comply with legal obligations, and resolve disputes.
             </p>
           </section>
 
@@ -326,7 +341,20 @@ const PrivacyPolicy = () => {
           {/* 12 */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-              12. Contact Us
+              12. Digital Products & Refund Clarification
+            </h2>
+            <p>
+              As we sell digital products, once a purchase is completed and the
+              content is accessed or downloaded, it cannot be returned or exchanged.
+              Refunds are only applicable in cases of duplicate payment or
+              non-delivery due to technical issues.
+            </p>
+          </section>
+
+          {/* 13 */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+              13. Contact Us
             </h2>
             <p>
               If you have questions about this Privacy Policy, please contact us:
@@ -342,4 +370,5 @@ const PrivacyPolicy = () => {
 };
 
 export default PrivacyPolicy;
+
 

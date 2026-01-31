@@ -68,12 +68,10 @@
 
 
 
-
 import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 const Shipping = () => {
-  // Auto scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -81,72 +79,67 @@ const Shipping = () => {
   return (
     <>
       <Helmet>
-        <title>Shipping Policy | THE FLOO CREATIVE MARKETING AGENCY</title>
+        <title>Digital Delivery Policy | THE FLOO CREATIVE MARKETING AGENCY</title>
       </Helmet>
 
       <main className="max-w-4xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold mb-2 text-center">Shipping Policy</h1>
+        <h1 className="text-2xl font-bold mb-2 text-center">
+          Digital Delivery Policy
+        </h1>
         <h2 className="text-3xl font-bold mb-8 text-center">
           THE FLOO CREATIVE MARKETING AGENCY
         </h2>
 
         <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
           <p>
-            We sell physical books and deliver them to the shipping address
-            provided by you at the time of checkout. Please review the details
-            below regarding our shipping process.
+            We sell <strong>digital products (e-books)</strong> only. No physical
+            books are shipped as part of any order.
           </p>
 
           <div className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">
-              Shipping Details
+              Digital Delivery Details
             </h2>
             <ul className="space-y-3 list-disc list-inside">
               <li>
-                <strong>Order Processing Time:</strong> Orders are processed within
-                1–2 business days after successful payment confirmation.
+                <strong>Delivery Method:</strong> E-books are delivered digitally
+                via email or downloadable link after successful payment.
               </li>
               <li>
-                <strong>Delivery Time:</strong> Delivery typically takes 5–10
-                business days depending on your location and courier service.
+                <strong>Delivery Time:</strong> Access is typically provided
+                instantly or within 24 hours of payment confirmation.
               </li>
               <li>
-                <strong>Shipping Coverage:</strong> We currently ship within India.
+                <strong>No Physical Shipping:</strong> Since this is a digital
+                product, no shipping charges apply.
               </li>
               <li>
-                <strong>Shipping Charges:</strong> Shipping charges, if applicable,
-                will be displayed at checkout before payment.
+                <strong>Access Responsibility:</strong> Please ensure your email
+                address is correct at checkout. We are not responsible for delays
+                caused by incorrect contact details.
               </li>
               <li>
-                <strong>Delivery Delays:</strong> Delivery times may vary due to
-                factors beyond our control such as courier delays, weather
-                conditions, or public holidays.
-              </li>
-              <li>
-                <strong>Address Accuracy:</strong> Please ensure your shipping
-                address and contact details are accurate. We are not responsible
-                for delivery issues caused by incorrect information.
+                <strong>Technical Issues:</strong> If you experience difficulty
+                accessing your e-book, contact us for assistance.
               </li>
             </ul>
           </div>
 
           <p>
-            Once your order is shipped, you may receive shipment or tracking
-            details via email or SMS (where applicable). If you experience any
-            issues with delivery or have questions about your order, please
-            contact us at{' '}
+            If you do not receive your digital product or face any access-related
+            issues, please contact us at{' '}
             <a
               href="mailto:digital.districtofficial@gmail.com"
               className="text-primary hover:underline"
             >
               digital.districtofficial@gmail.com
             </a>{' '}
-            with your order ID.
+            with your order ID and registered email address.
           </p>
 
           <p>
-            For information regarding cancellations, returns, or refunds, please
-            refer to our Cancellation & Refund Policy available on our website.
+            For details regarding cancellations or refunds, please refer to our
+            Cancellation & Refund Policy available on our website.
           </p>
         </div>
       </main>

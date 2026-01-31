@@ -17,14 +17,12 @@ import { useToast } from '../hooks/use-toast'; // shadcn/ui toast hook assumed
 
 interface ProductType {
   id: string;
-  title: string;           // Using title consistently (common in bookstores)
-  name?: string;           // Optional alias if API uses name
+  name: string;
   description: string;
   price: number;
-  image: string;
   rating?: number;
+  image: string;
   category: string;
-  // Add more fields later if needed (detailDescription, features, etc.)
 }
 
 const API_BASE = 'https://your-api-base-url.com'; // ← Replace with real URL
@@ -36,62 +34,67 @@ const IndexDummy: React.FC = () => {
   const featuredRef = useRef<HTMLDivElement>(null);
   const { addItem } = useCartStore();
   const { toast } = useToast();
-
+ /* ---------------- SAVE PRODUCTS (ONCE) ---------------- */
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/api/products`);
-        if (!response.ok) throw new Error('Failed to fetch products');
-        const data: ProductType[] = await response.json();
-        setProducts(data.filter((p) => p.category === 'books'));
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        // Fallback dummy data – using title consistently
-        setProducts([
-          {
-            id: '1',
-            title: 'It Ends with Us',
-            description: 'Learn effective habits to achieve your goals.',
-            price: 499,
-            rating: 4.5,
-            image: 'https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781398520783/it-ends-with-us-9781398520783_hr.jpg',
-            category: 'books',
-          },
-          {
-            id: '2',
-            title: 'Sapiens: A Brief History of Humankind',
-            description: 'Boost your productivity with simple techniques.',
-            price: 399,
-            rating: 4.7,
-            image: 'https://d30a6s96kk7rhm.cloudfront.net/original/readings/978/009/959/9780099590088.jpg',
-            category: 'books',
-          },
-          {
-            id: '3',
-            title: 'The Fault in Our Stars',
-            description: 'Develop a growth mindset for personal development.',
-            price: 549,
-            rating: 4.6,
-            image: 'https://laurellane.co.uk/wp-content/uploads/2022/07/IMG_0260.jpg',
-            category: 'books',
-          },
-          {
-            id: '4',
-            title: 'Twisted Love',
-            description: 'Understand key love shaping the future.',
-            price: 599,
-            rating: 4.8,
-            image: 'https://th.bing.com/th/id/OIP.m02sHFD1CdDKcuXISPNVBAHaJ4?w=208&h=277&c=7&r=0&o=7&cb=defcache2&dpr=1.3&pid=1.7&rm=3&defcache=1',
-            category: 'books',
-          },
-         
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!localStorage.getItem('products')) {
+      const initialProducts: ProductType[] = [
+        {
+          id: '1',
+          name: 'It Ends with Us',
+          description:
+            'A deeply emotional novel by Colleen Hoover about love and resilience.',
+          price: 499,
+          rating: 4.5,
+          image:
+            'https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781398520783/it-ends-with-us-9781398520783_hr.jpg',
+          category: 'Books',
+        },
+        {
+          id: '2',
+          name: 'Sapiens: A Brief History of Humankind',
+          description:
+            'An exploration of human history by Yuval Noah Harari.',
+          price: 399,
+          rating: 4.7,
+          image:
+            'https://d30a6s96kk7rhm.cloudfront.net/original/readings/978/009/959/9780099590088.jpg',
+          category: 'Books',
+        },
+        {
+          id: '3',
+          name: 'The Fault in Our Stars',
+          description:
+            'A touching love story by John Green about life, loss, and hope.',
+          price: 549,
+          rating: 4.6,
+          image:
+            'https://laurellane.co.uk/wp-content/uploads/2022/07/IMG_0260.jpg',
+          category: 'Books',
+        },
+        {
+          id: '4',
+          name: 'Twisted Love',
+          description:
+            'A dark romance by Ana Huang filled with passion and secrets.',
+          price: 599,
+          rating: 4.8,
+          image:
+            'https://th.bing.com/th/id/OIP.m02sHFD1CdDKcuXISPNVBAHaJ4?w=208&h=277&c=7',
+          category: 'Books',
+        },
+      ];
 
-    fetchProducts();
+      localStorage.setItem('products', JSON.stringify(initialProducts));
+    }
+  }, []);
+
+  /* ---------------- LOAD PRODUCTS ---------------- */
+  useEffect(() => {
+    const storedProducts = localStorage.getItem('products');
+    if (storedProducts) {
+      setProducts(JSON.parse(storedProducts));
+    }
+    setLoading(false);
   }, []);
 
   const scrollToFeatured = () => {
@@ -100,14 +103,10 @@ const IndexDummy: React.FC = () => {
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-
-    // Simulate subscription success
     toast({
       title: 'Subscribed successfully!',
-      description: 'Thank you! You’ll receive updates about new books.',
+      description: 'You will receive updates about new books.',
     });
-
     setEmail('');
   };
 
@@ -129,22 +128,37 @@ const IndexDummy: React.FC = () => {
     'Instant download worked perfectly.',
   ];
 
-  const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => (
+  const ProductCard: React.FC<{ product: ProductType }> = ({ product }) => {
+  const { addItem } = useCartStore();
+
+  return (
     <motion.div
       className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100"
       whileHover={{ y: -6, transition: { duration: 0.3 } }}
     >
-      <div className="aspect-[3/4] relative">
-        <img
-          src={product.image}
-          alt={product.title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </div>
-      <div className="p-5">
-        <h3 className="font-semibold text-lg line-clamp-2">{product.title}</h3>
-        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{product.description}</p>
+      {/* Clickable area → Detail page */}
+      <Link to={`/product/${product.id}`}>
+        <div className="aspect-[3/4] relative">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+      </Link>
 
+      <div className="p-5">
+        <Link to={`/product/${product.id}`}>
+          <h3 className="font-semibold text-lg line-clamp-2 hover:text-indigo-600 transition-colors">
+            {product.name}
+          </h3>
+        </Link>
+
+        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+          {product.description}
+        </p>
+
+        {/* Rating */}
         {product.rating && (
           <div className="flex items-center mt-3">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -152,23 +166,27 @@ const IndexDummy: React.FC = () => {
                 key={i}
                 size={16}
                 className={
-                  i < Math.floor(product.rating!)
+                  i < Math.floor(product.rating)
                     ? 'text-yellow-400 fill-yellow-400'
                     : 'text-gray-300'
                 }
               />
             ))}
-            <span className="ml-2 text-sm text-gray-600">{product.rating}</span>
+            <span className="ml-2 text-sm text-gray-600">
+              {product.rating}
+            </span>
           </div>
         )}
 
+        {/* Price */}
         <p className="font-bold text-xl mt-3">₹{product.price}</p>
 
+        {/* Add to Cart */}
         <button
           onClick={() =>
             addItem({
               id: product.id,
-              name: product.name,           // using title
+              name: product.name,
               price: product.price,
               image: product.image,
               quantity: 1,
@@ -181,6 +199,7 @@ const IndexDummy: React.FC = () => {
       </div>
     </motion.div>
   );
+};
 
   const SkeletonCard = () => (
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 animate-pulse">
@@ -305,7 +324,7 @@ const IndexDummy: React.FC = () => {
       </section>
 
       {/* Categories Carousel */}
-      <section className="py-20 px-5 md:px-10 lg:px-16 bg-slate-50">
+      {/* <section className="py-20 px-5 md:px-10 lg:px-16 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Categories</h2>
 
@@ -346,7 +365,7 @@ const IndexDummy: React.FC = () => {
             </button>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Top Digital Books */}
       <section className="py-20 px-5 md:px-10 lg:px-16 max-w-7xl mx-auto">

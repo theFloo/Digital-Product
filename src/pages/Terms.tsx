@@ -174,23 +174,26 @@ const Terms = () => {
             <p>
               By accessing and using THE FLOO CREATIVE MARKETING AGENCY’s website
               and services, you agree to be bound by these Terms and Conditions.
-              If you do not agree, please do not use our services.
+              If you do not agree with any part of these Terms, please do not use
+              our services.
             </p>
           </section>
 
           {/* 2 */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-              2. Products
+              2. Nature of Products
             </h2>
             <p>
-              We sell physical books through our website. All products listed are
-              subject to availability and confirmation of the order price.
+              THE FLOO CREATIVE MARKETING AGENCY offers <strong>digital products</strong>,
+              including downloadable digital books, guides, and creative resources.
+              All products are delivered electronically. We do not sell or ship
+              physical books or goods.
             </p>
             <ul className="list-disc list-inside ml-4 space-y-2">
-              <li>All products are physical goods and require shipping</li>
-              <li>Product images are for representation purposes only</li>
-              <li>Minor variations in print or cover may occur</li>
+              <li>All products are digital and non-tangible</li>
+              <li>No physical delivery or shipping is involved</li>
+              <li>Access details are provided after successful payment</li>
             </ul>
           </section>
 
@@ -204,40 +207,51 @@ const Terms = () => {
               securely through Razorpay using supported payment methods.
             </p>
             <ul className="list-disc list-inside ml-4 space-y-2">
-              <li>Payment must be completed before order confirmation</li>
+              <li>Full payment must be completed before access is granted</li>
               <li>Prices may change without prior notice</li>
-              <li>Taxes and shipping charges may apply where applicable</li>
+              <li>Applicable taxes, if any, are included or shown at checkout</li>
             </ul>
           </section>
 
           {/* 4 */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-              4. Shipping and Delivery
+              4. Delivery of Digital Products
             </h2>
             <p>
-              Orders are shipped to the address provided during checkout. Delivery
-              timelines may vary based on location and logistics partners.
+              Upon successful payment, digital products are delivered
+              electronically via download links, email, or user account access.
             </p>
             <ul className="list-disc list-inside ml-4 space-y-2">
-              <li>We are not responsible for delays caused by courier services</li>
-              <li>Incorrect address details may result in failed delivery</li>
+              <li>Delivery is usually instant or within a short period</li>
+              <li>Users are responsible for providing a valid email address</li>
+              <li>
+                We are not responsible for non-delivery due to incorrect contact
+                details provided by the user
+              </li>
             </ul>
           </section>
 
           {/* 5 */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-              5. Cancellation, Returns and Refunds
+              5. Cancellation, Refunds, and Returns
             </h2>
             <p>
-              Cancellations, returns, and refunds are governed by our Cancellation
-              & Refund Policy available on the website.
+              As we provide digital products, cancellations and returns are
+              generally not permitted once the product has been accessed or
+              downloaded.
             </p>
             <ul className="list-disc list-inside ml-4 space-y-2">
-              <li>Orders can be cancelled only before dispatch</li>
-              <li>Returns are accepted only for damaged or incorrect items</li>
-              <li>Refunds are processed after inspection of returned products</li>
+              <li>No refunds after successful delivery of digital content</li>
+              <li>
+                Refunds may be considered only in cases of duplicate payment or
+                non-delivery due to technical issues
+              </li>
+              <li>
+                Refund requests must be raised within a reasonable time by
+                contacting customer support
+              </li>
             </ul>
           </section>
 
@@ -248,39 +262,65 @@ const Terms = () => {
             </h2>
             <p>You agree not to:</p>
             <ul className="list-disc list-inside ml-4 space-y-2">
-              <li>Provide false or misleading information</li>
-              <li>Misuse the website or interfere with its operation</li>
-              <li>Engage in fraudulent or unlawful activities</li>
+              <li>Provide false, inaccurate, or misleading information</li>
+              <li>Share, resell, or distribute digital products unlawfully</li>
+              <li>Attempt to misuse, hack, or disrupt the website or services</li>
+              <li>Engage in any fraudulent or illegal activities</li>
             </ul>
           </section>
 
           {/* 7 */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-              7. Privacy
+              7. Intellectual Property
             </h2>
             <p>
-              Your use of our services is also governed by our Privacy Policy.
-              Please review it to understand how we collect and use your data.
+              All digital products, content, text, graphics, and materials
+              available on this website are the intellectual property of
+              THE FLOO CREATIVE MARKETING AGENCY and are protected by applicable
+              copyright and intellectual property laws.
             </p>
           </section>
 
           {/* 8 */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-              8. Limitation of Liability
+              8. Privacy
             </h2>
             <p>
-              THE FLOO CREATIVE MARKETING AGENCY shall not be liable for any
-              indirect, incidental, or consequential damages arising from the use
-              of our website or products.
+              Your use of our services is governed by our Privacy Policy. Please
+              review it to understand how we collect, use, and protect your data.
             </p>
           </section>
 
           {/* 9 */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-              9. Contact Information
+              9. Limitation of Liability
+            </h2>
+            <p>
+              THE FLOO CREATIVE MARKETING AGENCY shall not be liable for any
+              indirect, incidental, consequential, or special damages arising
+              from the use of our website or digital products.
+            </p>
+          </section>
+
+          {/* 10 */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+              10. Changes to Terms
+            </h2>
+            <p>
+              We reserve the right to update or modify these Terms and Conditions
+              at any time. Continued use of the website constitutes acceptance
+              of the revised Terms.
+            </p>
+          </section>
+
+          {/* 11 */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+              11. Contact Information
             </h2>
             <p>
               For any questions regarding these Terms and Conditions, please
@@ -291,18 +331,6 @@ const Terms = () => {
             </p>
             <p className="font-semibold">
               Email: digital.districtofficial@gmail.com
-            </p>
-          </section>
-
-          {/* 10 */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900">
-              10. Changes to Terms
-            </h2>
-            <p>
-              We reserve the right to update or modify these Terms at any time.
-              Continued use of the website constitutes acceptance of the revised
-              Terms.
             </p>
           </section>
         </div>
