@@ -39,17 +39,17 @@ const PaymentSuccess: React.FC = () => {
   const { clearCart } = useCartStore();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const transactionId = searchParams.get("transactionId");
-
+  const orderId = searchParams.get("orderId");
+  console.log("PaymentSuccess loaded with orderId:", orderId);
   useEffect(() => {
     clearCart();
 
-    if (!transactionId) return;
+    if (!orderId) return;
 
     const fetchOrder = async () => {
       try {
         const base = API_BASE || "http://localhost:3000";
-        const res = await fetch(`${base}/api/orders/${encodeURIComponent(transactionId)}`, {
+        const res = await fetch(`${base}/api/orders/${encodeURIComponent(orderId)}`, {
           method: "GET",
           credentials: "include",
         });
@@ -62,85 +62,85 @@ const PaymentSuccess: React.FC = () => {
     };
 
     fetchOrder();
-  }, [transactionId, clearCart]);
+  }, [orderId, clearCart]);
 
   // fetch products list
-useEffect(() => {
-  // only run when we have order details
-  if (!orderDetails) return;
+  useEffect(() => {
+    // only run when we have order details
+    if (!orderDetails) return;
 
-  const fetchProductsForOrder = async () => {
-    setLoadingProducts(true);
-    setProductsError(null);
+    const fetchProductsForOrder = async () => {
+      setLoadingProducts(true);
+      setProductsError(null);
 
-    try {
-      const base = API_BASE || "http://localhost:3000";
+      try {
+        const base = API_BASE || "http://localhost:3000";
 
-      // collect unique product ids from the order items
-      const ids = Array.from(
-        new Set(orderDetails.items.map((it) => String(it.id).trim()).filter(Boolean))
-      );
+        // collect unique product ids from the order items
+        const ids = Array.from(
+          new Set(orderDetails.items.map((it) => String(it.id).trim()).filter(Boolean))
+        );
 
-      if (ids.length === 0) {
-        setProducts([]);
-        return;
-      }
-
-      // fetch all product endpoints in parallel
-      const fetches = ids.map((id) =>
-        fetch(`${base}/api/products/${encodeURIComponent(id)}`, {
-          method: "GET",
-          // include credentials only if your server requires cookies/session
-        }).then(async (res) => {
-          if (!res.ok) {
-            const text = await res.text().catch(() => "");
-            throw new Error(`Product ${id} fetch failed: ${res.status} ${text}`);
-          }
-          return (await res.json()) as Product;
-        })
-      );
-
-      // use Promise.allSettled to tolerate some missing products
-      const results = await Promise.allSettled(fetches);
-
-      const successful: Product[] = [];
-      const errors: string[] = [];
-
-      results.forEach((r, idx) => {
-        if (r.status === "fulfilled") {
-          successful.push(r.value);
-        } else {
-          errors.push(`id=${ids[idx]}: ${r.reason?.message || String(r.reason)}`);
+        if (ids.length === 0) {
+          setProducts([]);
+          return;
         }
-      });
 
-      if (successful.length === 0 && errors.length) {
-        // nothing fetched successfully
-        throw new Error(`Failed to fetch any products. Errors: ${errors.join("; ")}`);
+        // fetch all product endpoints in parallel
+        const fetches = ids.map((id) =>
+          fetch(`${base}/api/products/${encodeURIComponent(id)}`, {
+            method: "GET",
+            // include credentials only if your server requires cookies/session
+          }).then(async (res) => {
+            if (!res.ok) {
+              const text = await res.text().catch(() => "");
+              throw new Error(`Product ${id} fetch failed: ${res.status} ${text}`);
+            }
+            return (await res.json()) as Product;
+          })
+        );
+
+        // use Promise.allSettled to tolerate some missing products
+        const results = await Promise.allSettled(fetches);
+
+        const successful: Product[] = [];
+        const errors: string[] = [];
+
+        results.forEach((r, idx) => {
+          if (r.status === "fulfilled") {
+            successful.push(r.value);
+          } else {
+            errors.push(`id=${ids[idx]}: ${r.reason?.message || String(r.reason)}`);
+          }
+        });
+
+        if (successful.length === 0 && errors.length) {
+          // nothing fetched successfully
+          throw new Error(`Failed to fetch any products. Errors: ${errors.join("; ")}`);
+        }
+
+        // optional: keep the order of products same as order items
+        const productsOrdered = ids
+          .map((id) => successful.find((p) => String(p.id) === id))
+          .filter(Boolean) as Product[];
+
+        setProducts(productsOrdered);
+        if (errors.length) {
+          // log and show a non-fatal warning
+          console.warn("Some product fetches failed:", errors);
+          setProductsError("Some products could not be loaded. Check console for details.");
+        }
+      } catch (err) {
+        console.error("Error fetching products for order:", err);
+        setProductsError(err instanceof Error ? err.message : "Failed to fetch products");
+        setProducts([]); // fallback empty
+      } finally {
+        setLoadingProducts(false);
       }
+    };
 
-      // optional: keep the order of products same as order items
-      const productsOrdered = ids
-        .map((id) => successful.find((p) => String(p.id) === id))
-        .filter(Boolean) as Product[];
-
-      setProducts(productsOrdered);
-      if (errors.length) {
-        // log and show a non-fatal warning
-        console.warn("Some product fetches failed:", errors);
-        setProductsError("Some products could not be loaded. Check console for details.");
-      }
-    } catch (err) {
-      console.error("Error fetching products for order:", err);
-      setProductsError(err instanceof Error ? err.message : "Failed to fetch products");
-      setProducts([]); // fallback empty
-    } finally {
-      setLoadingProducts(false);
-    }
-  };
-
-  fetchProductsForOrder();
-}, [orderDetails]);
+    fetchProductsForOrder();
+  }, [orderDetails]);
 
   // helpers
   const parseFilenameFromContentDisposition = (headerValue: string | null) => {
@@ -173,20 +173,40 @@ useEffect(() => {
     const raw = product.file_name || product.local_file_name || product.name || fallbackName || `product_${productId}`;
     return makeSafeFilename(raw);
   };
+async function downloadProduct(productId: string, orderId: string) {
+  try {
+    setDownloadingId(productId);
 
-async function downloadProduct(productId, transactionId) {
-  const base = API_BASE || "https://api.thefloo.in";
-  const res = await fetch(`${base}/api/signed-download/${encodeURIComponent(productId)}?transactionId=${encodeURIComponent(transactionId)}`, {
-    method: "GET",
-    credentials: "include", // if your server requires cookies
-    headers: { Accept: "application/json" },
-  });
-  const json = await res.json();
-  if (!res.ok || !json.signedUrl) throw new Error(json.message || "No signed url");
+    const res = await fetch(
+      `${API_BASE}/api/signed-download/${encodeURIComponent(productId)}?orderId=${encodeURIComponent(orderId)}`,
+      {
+        credentials: "include",
+      }
+    );
 
-  // open in new tab or redirect; using location.href will open in same tab
+    const contentType = res.headers.get("content-type") || "";
+
+    if (!contentType.includes("application/json")) {
+      const text = await res.text();
+      console.error("Non-JSON response:", text);
+      throw new Error("Invalid server response");
+    }
+
+    const json = await res.json();
+
+    if (!json.signedUrl) {
+      throw new Error("No signed URL returned");
+    }
+
     window.open(json.signedUrl, "_blank");
+  } catch (err) {
+    console.error("Download failed:", err);
+    alert("Download failed. Please try again.");
+  } finally {
+    setDownloadingId(null);
+  }
 }
+
 
 
   if (!orderDetails) {
@@ -256,7 +276,7 @@ async function downloadProduct(productId, transactionId) {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => downloadProduct(item.id, transactionId)}
+                    onClick={() => downloadProduct(item.id, orderId)}
                     disabled={!!downloadingId}
                     className="flex items-center gap-2"
                     aria-label={`Download ${displayName}`}

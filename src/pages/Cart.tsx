@@ -79,7 +79,7 @@ const Cart = () => {
     });
 
     const data = await response.json();
-
+console.log('Order creation response:', data);
     if (!data.success) {
       throw new Error(data.message || 'Order creation failed');
     }

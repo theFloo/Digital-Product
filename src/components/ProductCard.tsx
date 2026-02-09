@@ -1,11 +1,12 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Star, Image, Target } from 'lucide-react';
+import { Star, Image } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '@/store/useCartStore';
 import { toast } from 'react-toastify';
+import { formatCurrency } from '@/lib/formatting';
 
 interface ProductProps {
   product: {
@@ -16,7 +17,7 @@ interface ProductProps {
     popular?: boolean;
     image?: string;
     rating?: number;
-    url: string;
+    url?: string;
   };
 }
 
@@ -87,7 +88,7 @@ const ProductCard = ({ product }: ProductProps) => {
           <p className="text-muted-foreground text-sm mb-4 line-clamp-3 flex-grow">{product.description}</p>
           
           <div className="flex items-center justify-between mt-auto">
-            <span className="text-xl font-bold">₹{product.price} /-</span>
+            <span className="text-xl font-bold">{formatCurrency(product.price)}</span>
             <Button 
               onClick={handleAddToCart}
               size="sm" 

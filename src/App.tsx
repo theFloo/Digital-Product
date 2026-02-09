@@ -29,6 +29,7 @@ import PaymentError from "./pages/Payment-error";
 import TrustBadges from "./components/TrustBadges";
 import PaymentPendingPage from './pages/PaymentPendingPage';
 import IndexDummy from './pages/IndexDummy';
+import PaymentProcessing from './pages/PaymentProcessing';
 
 const queryClient = new QueryClient();
 
@@ -54,7 +55,7 @@ const App = () => (
           />
           <Navbar />
           <Routes>
-            <Route path="/" element={<IndexDummy />} />
+            <Route path="/" element={<Index />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/contact" element={<Contact />} />
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/cancellation-refund" element={<CancellationRefund />} />
             <Route path="/track-order" element={<OrderTracking />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/payment-processing" element={<PaymentProcessing />} />
             <Route path="/payment-pending" element={<PaymentPendingPage />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-failed" element={<PaymentFailed />} />
