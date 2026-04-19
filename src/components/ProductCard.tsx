@@ -42,7 +42,7 @@ const navigate = useNavigate();
     });
       setTimeout(() => {
     navigate('/cart');
-  }, 800);
+  }, 700);
   };
 
   return (
